@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  password  String
+  createdAt DateTime @default(now())
+}
+
+model SelectedRecipes {
+  id         Int       @id @default(autoincrement())
+  meal       Meal // Enum type for meal
+  recipeName String
+  timeToCook Int
+  dayOfWeek  DayOfWeek // Enum type for dayOfWeek
+
+  recipe Recipe @relation(fields: [recipeName], references: [name])
+}
+
+model Recipe {
+  name            String             @id
+  instructions    String
+  timeToCook      Int
+  ingredients     RecipeIngredient[]
+  SelectedRecipes SelectedRecipes[]
+}
+
+model Ingredient {
+  id      Int                @id @default(autoincrement())
+  name    String
+  recipes RecipeIngredient[]
+}
+
+model RecipeIngredient {
+  id           Int    @id @default(autoincrement())
+  recipeName   String
+  ingredientId Int
+  amount       String
+
+  recipe     Recipe     @relation(fields: [recipeName], references: [name])
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id])
+}
+
+enum Meal {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+  DESSERT
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
